@@ -24,6 +24,9 @@ Now how to scale this framework to be able to handle multiple ingestion job at o
 
 * To summarise, every component here are designed to be horizontally scaled, all in term of processing resource, number of job (by using on-demand job), and orchestration. Then storage blob (S3) will be used as shared resource to store input and output.
 
+## Additional Operational Optimization
 * Additionally, delta format is used to store the output as it support MERGE and UPDATE operations without the need of actual traditional datawarehouse database.
 
 * To make it more scale and performant, regular optimization  of delta storage can also be done as [recommended by Delta](https://docs.delta.io/latest/best-practices.html) (can be scheduled by another Airflow job).
+
+* Job creation from config file can be integrated into CI/CD pipeline, so all the user need to do is commit new config file inside `ingestion_config/` and new job will be orchestrated automatically.
