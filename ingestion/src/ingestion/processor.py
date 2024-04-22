@@ -40,7 +40,8 @@ class ProcessorBase:
 
         DELTA_TABLE_EXIST = DeltaTable.isDeltaTable(self.spark, table_path)
         if DELTA_TABLE_EXIST:
-            merge_args = [f"old.`{_id}` = new.`{_id}`" for _id in self.config.PARAMS.get("unique_ids")]
+            merge_args = [f"coalesce(old.`{_id}`, -1) = coalesce(new.`{_id}`, -1)" 
+                          for _id in self.config.PARAMS.get("unique_ids")]
 
             table = DeltaTable.forPath(self.spark, table_path)
             table.alias("old").merge(
@@ -110,10 +111,13 @@ class IngestionProcessor(ProcessorBase):
 
         df = df.withColumn("dummy_jk", sf.lit(1)).join(words, "dummy_jk").drop("dummy_jk")
         df = df.withColumn("inappropruate_words_found", sf.regexp_extract_all(review_column, df.replace_regex_args))
-        df = df.withColumn("text_word_count", sf.size(sf.split(review_column, "\s")))
-        df = df.withColumn("inappropriate_words_length", sf.size("inappropruate_words_found"))
-        df = df.withColumn("perc_inappropriate", df.inappropriate_words_length / df.text_word_count)
-        df = df.withColumn(review_column, sf.regexp_replace(review_column, df.replace_regex_args, "****"))
+        df = df.withColumn("text_length", sf.length(review_column))
+        df = df.withColumn("inappropriate_length", sf.length(sf.array_join("inappropruate_words_found","")))
+        df = df.withColumn("perc_inappropriate", df.inappropriate_length / df.text_length)
+        df = df.withColumn(review_column, sf.expr(
+            f"reduce(inappropruate_words_found, `{review_column}`, "
+            f"(acc, x) -> regexp_replace(acc, x, repeat('*', length(x))))"
+        ))
 
         # remove record that pass percentage of inappropriate word to total text
         df = df.filter("perc_inappropriate < {}".format(self.config.PARAMS.get("max_perc_inappropriate_words")))
@@ -170,6 +174,7 @@ class AggregationProcessor(ProcessorBase):
         df = df.groupBy("restaurantId").agg(
             sf.count("*").alias("reviewCount"),
             sf.mean("rating").alias("averageRating"),
+            sf.mean(sf.length(self.config.PARAMS.get('review_column'))).alias("averageReviewLength"),
             sf.expr("map('oldest', max(reviewAge), 'newest', min(reviewAge),"
                     "'average', mean(reviewAge))").alias("reviewAge")
         )

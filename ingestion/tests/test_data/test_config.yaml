@@ -15,3 +15,5 @@ config:
       # ID to use for deduplication
       - restaurantId
       - reviewId
+      - rating
+      - publishedAt
