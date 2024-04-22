@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Review",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "restaurantId": {
+      "title": "Restaurant ID",
+      "description": "Globally unique identifier of a given restaurant",
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "reviewId": {
+      "title": "Review ID",
+      "description": "Identifier of a given review. Only unique within a given Restaurant ID",
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "text": {
+      "title": "Text",
+      "description": "Textual content of a review",
+      "type": "string",
+      "minLength": 1
+    },
+    "rating": {
+      "title": "Rating",
+      "description": "The rating given to this restaurant by this review.",
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "publishedAt": {
+      "title": "Published At",
+      "description": "The publication date of this review.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "restaurantId",
+    "reviewId",
+    "text",
+    "rating",
+    "publishedAt"
+  ]
+}

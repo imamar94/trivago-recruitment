@@ -1,0 +1,16 @@
+name: test
+config:
+  input_path: test_data/input/reviews.jsonl
+  inappropriate_words_path: test_data/input/inappropriate_words.txt
+  output_path: test_data/output/
+  output_aggregation_path: test_data/agg/
+  review_schema: test_data/schema/review.json
+  aggregation_schema: test_data/schema/aggregation.json
+  params:
+    max_perc_inappropriate_words: 0.2
+    max_review_age_year: 3 
+    timestamp_column: publishedAt
+    unique_ids: 
+      # ID to use for deduplication
+      - restaurantId
+      - reviewId

@@ -1,0 +1,32 @@
+{"restaurantId": 1, "reviewId": 1, "text": "Great food and service!", "rating": 8.5, "publishedAt": "2023-04-20T14:30:00.000Z"}
+{"restaurantId": 1, "reviewId": 2, "text": "The dessert was amazing, but the main course really sucked.", "rating": 5.5, "publishedAt": "2023-10-12T11:20:00.000Z"}
+{"restaurantId": 2, "reviewId": 3, "text": "Wait time was very long and the pasta tasted like fracking oil.", "rating": 2, "publishedAt": "2023-03-10T18:10:00.000Z"}
+{"restaurantId": 2, "reviewId": 4, "text": "This restaurant is excellent. I would highly recommend it.", "rating": 9.5, "publishedAt": "2022-12-20T16:52:00.000Z"}
+{"restaurantId": 3, "reviewId": 5, "text": "Average food, nothing outstanding or worth mentioning.", "rating": 5, "publishedAt": "2023-06-25T20:07:00.000Z"}
+{"restaurantId": 3, "reviewId": 1, "text": "The steak tasted like poop, but the wine was great.", "rating": 4.5, "publishedAt": "2023-07-30T12:45:00.000Z"}
+{"restaurantId": 4, "reviewId": 7, "text": "I found a strand of hair in my soup. Gross!", "rating": 0, "publishedAt": "2023-02-28T13:15:00.000Z"}
+{"restaurantId": 4, "reviewId": 8, "text": "Service was slow. The food was completely worth the wait though!", "rating": 7.5, "publishedAt": "2023-08-11T17:30:00.000Z"}
+{"restaurantId": 4, "reviewId": 9, "text": "Food was ok, but the prices are too high.", "rating": 4, "publishedAt": "2022-09-21T14:20:00.000Z"}
+{"restaurantId": 5, "reviewId": 10, "text": "Worst place ever! The food was cold and tasted horrible.", "rating": 1, "publishedAt": "2023-07-19T15:45:00.000Z"}
+{"restaurantId": 6, "reviewId": 11, "text": "The sushi was fresh and delicious.", "rating": 8.5, "publishedAt": "2023-10-13"}
+{"restaurantId": 6, "reviewId": 12, "text": "Overrated. The food is just average.", "rating": 5, "publishedAt": "2023-01-28T14:30:00.000Z"}
+{"restaurantId": 6, "reviewId": 13, "text": "Lovely atmosphere and good service but the food sucks.", "rating": 5, "publishedAt": "2023-10-10T21:00:00.000Z"}
+{"restaurantId": 6, "reviewId": 14, "text": "It's like heaven for pizza lovers.", "rating": 8.5, "publishedAt": "2022-11-15T12:35:00.000Z"}
+{"restaurantId": 10, "text": "Awesome spicy chicken wings", "rating": 7, "publishedAt": "2022-10-15T14:20:00.000Z"}
+{"restaurantId": 10, "reviewId": 16, "text": "Great food. Loved their vegan options.", "publishedAt": "2023-06-14T11:30:00.000Z"}
+{"reviewId": 17, "text": "Too expensive for the quality of food.", "rating": 3.5, "publishedAt": "2022-12-12T16:30:00.000Z"}
+{"restaurantId": 10, "reviewId": 18, "text": "It was ok. Average food and service.", "rating": 5.5, "publishedAt": "2023-11-10T18:15:00.000Z"}
+{"restaurantId": 10, "reviewId": 19, "text": "Service is slow", "rating": 4.5, "publishedAt": "2023-04-12T14:10:00.000Z"}
+{"restaurantId": 11, "reviewId": 20, "text": "Food was very good but the portions were small.", "rating": 7, "publishedAt": "2023-05-15T12:07:00.000Z"}
+{"restaurantId": 12, "reviewId": 21, "text": "The bathroom is very dirty. The staff seems to be uncaring.", "rating": 2, "publishedAt": "2023-03-30T17:11:00.000Z"}
+{"restaurantId": 12, "reviewId": 22, "text": "Avoid this place! The smell from the kitchen was like someone pooping in there.", "rating": 1.5, "publishedAt": "2023-10-01T16:45:00.000Z"}
+{"restaurantId": 13, "reviewId": 23, "text": "Don't go there!! The situation of cleanliness is like a poop.", "rating": 2, "publishedAt": "2023-04-25T14:22:00.000Z"}
+{"restaurantId": 14, "reviewId": 24, "text": "The food was very tasty and the staff was friendly.", "rating": 7.5, "publishedAt": "2023-06-15T20:30:00.000Z"}
+{"restaurantId": 14, "reviewId": 25, "text": "Really bad food, not recommended.", "rating": 2, "publishedAt": "2023-09-21T13:52:00.000Z"}
+{"restaurantId": 14, "reviewId": 26, "text": "This place butts. Do not waste your time and money.", "rating": 1.5, "publishedAt": "2023-03-15T12:40:00.000Z"}
+{"restaurantId": 14, "reviewId": 10, "text": "Best restaurant in town! Highly recommend.", "rating": 10, "publishedAt": "2023-10-15T19:30:00.000Z"}
+{"restaurantId": 15, "reviewId": 28, "text": "Nice ambiance, food is just average.", "rating": 5.5, "publishedAt": "2023-02-25T18:10:00.000Z"}
+{"restaurantId": 15, "reviewId": 29, "text": "Food poisoning. Never again!", "rating": 1, "publishedAt": "2023-09-05T14:20:00.000Z"}
+{"restaurantId": 15, "text": "Perfect! I will definitely be back.", "rating": 9.5, "publishedAt": "2023-04-30T19:30:00.000Z"}
+{"restaurantId": 18, "reviewId": 31, "text": "It is a really nice restaurant. Good location, nice and clean, pleasant storing.", "rating": 8, "publishedAt": "2023-08-14T17:33:00.000Z"}
+{"restaurantId": 18, "reviewId": 10, "text": "Fracking poop!", "rating": 1, "publishedAt": "2024-01-22T09:17:44Z" }
