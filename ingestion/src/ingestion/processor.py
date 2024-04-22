@@ -2,10 +2,11 @@ from ingestion.spark_utils import get_spark_session, \
     _json_to_spark_schema
 from ingestion.config import IngestionConfig
 from pyspark.sql import DataFrame
-from pyspark.sql import functions as sf
+from pyspark.sql import functions as sf, Window
 import json
 import os
 from delta.tables import DeltaTable
+import datetime
 
 
 class Pipeline:
@@ -34,6 +35,25 @@ class ProcessorBase:
     def run(self):
         pass
 
+    def save_to_delta_table(self, df: DataFrame, table_path: str, partition_col: str) -> None:
+        min_dt, max_dt = df.selectExpr(f"min(`{partition_col}`) as min_dt", f"max(`{partition_col}`) as max_dt").toPandas().values[0]
+
+        DELTA_TABLE_EXIST = DeltaTable.isDeltaTable(self.spark, table_path)
+        if DELTA_TABLE_EXIST:
+            merge_args = [f"old.`{_id}` = new.`{_id}`" for _id in self.config.PARAMS.get("unique_ids")]
+
+            table = DeltaTable.forPath(self.spark, table_path)
+            table.alias("old").merge(
+                df.alias("new"),
+                " and ".join(merge_args) 
+                + f" and old.`{partition_col}` between date '{min_dt}' and date '{max_dt}'"
+            ) \
+            .whenMatchedUpdateAll() \
+            .whenNotMatchedInsertAll() \
+            .execute()
+        else:
+            df.write.format("delta").partitionBy(partition_col).save(table_path)
+
 
 class IngestionProcessor(ProcessorBase):
     """
@@ -44,6 +64,7 @@ class IngestionProcessor(ProcessorBase):
             self._read_json,
             self._cache_by_parquet,
             self._process_inapprorpiate_words,
+            self._deduplicate_by_unique_ids,
             self._write_delta
         ])
 
@@ -71,6 +92,7 @@ class IngestionProcessor(ProcessorBase):
         return self.spark.read.parquet(tmp_output_path)
     
     def _process_inapprorpiate_words(self, df: DataFrame) -> DataFrame:
+        review_column = self.config.PARAMS.get("review_column")
         words = (
             self.spark.read.text(self.config.INAPPROPRIATE_WORDS_PATH)
             .withColumn("length", sf.length("value"))
@@ -87,35 +109,82 @@ class IngestionProcessor(ProcessorBase):
         )
 
         df = df.withColumn("dummy_jk", sf.lit(1)).join(words, "dummy_jk").drop("dummy_jk")
-        df = df.withColumn("inappropruate_words_found", sf.regexp_extract_all("text", df.replace_regex_args))
-        df = df.withColumn("text_word_count", sf.size(sf.split("text", "\s")))
+        df = df.withColumn("inappropruate_words_found", sf.regexp_extract_all(review_column, df.replace_regex_args))
+        df = df.withColumn("text_word_count", sf.size(sf.split(review_column, "\s")))
         df = df.withColumn("inappropriate_words_length", sf.size("inappropruate_words_found"))
         df = df.withColumn("perc_inappropriate", df.inappropriate_words_length / df.text_word_count)
-        df = df.withColumn("text", sf.regexp_replace("text", df.replace_regex_args, "****"))
+        df = df.withColumn(review_column, sf.regexp_replace(review_column, df.replace_regex_args, "****"))
+
+        # remove record that pass percentage of inappropriate word to total text
+        df = df.filter("perc_inappropriate < {}".format(self.config.PARAMS.get("max_perc_inappropriate_words")))
 
         return df
     
-    def _write_delta(self, df: DataFrame) -> None:
+    def _deduplicate_by_unique_ids(self, df: DataFrame) -> DataFrame:
+        unique_ids = self.config.PARAMS.get("unique_ids")
+        ts_col = self.config.PARAMS.get("timestamp_column")
+        window = Window.partitionBy(*unique_ids).orderBy(sf.col(ts_col).desc())
+        df = df.withColumn("rn", sf.row_number().over(window))
+        df = df.filter("rn = 1").drop("rn")
+        return df
+    
+    def _write_delta(self, df: DataFrame) -> str:
         table_path = os.path.join(self.config.OUTPUT_PATH, 'final')
         with open(self.config.REVIEW_SCHEMA, 'r') as f:
             select_columns = json.load(f).get("required")
 
         df = df.select(*select_columns).withColumn("partition_date", sf.to_date("publishedAt"))
         df.cache()
-        min_dt, max_dt = df.selectExpr("min(partition_date) as min_dt", "max(partition_date) as max_dt").toPandas().values[0]
+        self.save_to_delta_table(
+            df, 
+            table_path=table_path,
+            partition_col="partition_date"
+        )
+        return "SUCCESS"
 
-        DELTA_TABLE_EXIST = DeltaTable.isDeltaTable(self.spark, table_path)
-        if DELTA_TABLE_EXIST:
-            merge_args = [f"old.`{_id}` = new.`{_id}`" for _id in self.config.PARAMS.get("unique_ids")]
+class AggregationProcessor(ProcessorBase):
+    def run(self):
+        pipeline = Pipeline([
+            self._read_data,
+            self._filter_old_review,
+            self._agg,
+            self._write
+        ])
 
-            table = DeltaTable.forPath(self.spark, table_path)
-            table.alias("old").merge(
-                df.alias("new"),
-                " and ".join(merge_args) 
-                + " and old.partition_date between date '{}' and date '{}'".format(min_dt, max_dt)
-            ) \
-            .whenMatchedUpdateAll() \
-            .whenNotMatchedInsertAll() \
-            .execute()
-        else:
-            df.write.format("delta").partitionBy("partition_date").save(table_path)
+        return pipeline.run()
+
+    def _read_data(self) -> DataFrame:
+        table_path = os.path.join(self.config.OUTPUT_PATH, 'final')
+        df = DeltaTable.forPath(self.spark, table_path).toDF()
+        return df
+    
+    def _filter_old_review(self, df: DataFrame) -> DataFrame:
+        df = df.filter("partition_date >= current_date - interval '3' year")
+        return df
+    
+    def _agg(self, df: DataFrame) -> DataFrame:
+        df = df.withColumn(
+            "reviewAge", 
+            sf.expr("date_diff(DAY, date(publishedAt), current_date)")
+        )
+        df = df.groupBy("restaurantId").agg(
+            sf.count("*").alias("reviewCount"),
+            sf.mean("rating").alias("averageRating"),
+            sf.expr("map('oldest', max(reviewAge), 'newest', min(reviewAge),"
+                    "'average', mean(reviewAge))").alias("reviewAge")
+        )
+        return df
+    
+    def _write(self, df: DataFrame) -> DataFrame:
+        result = df.toLocalIterator()
+        output = os.path.join(
+            self.config.OUTPUT_AGGREGATION_PATH, 
+            datetime.datetime.now().strftime("%Y-%m-%d") + "_review_agg.jsonl"
+        )
+
+        if not os.path.exists(self.config.OUTPUT_AGGREGATION_PATH):
+            os.makedirs(self.config.OUTPUT_AGGREGATION_PATH)
+
+        with open(output, 'w') as f:
+            for row in result:
+                f.write(json.dumps(row.asDict()) + '\n')

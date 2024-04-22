@@ -1,24 +1,15 @@
 .PHONY: test
 test:
 	@echo "Running tests..."
+	python -m pytest
 
-build:
-	docker-compose build
-
-build-nc:
-	docker-compose build --no-cache
-
-build-progress:
-	docker-compose build --no-cache --progress=plain
-
-down:
-	docker-compose down --volumes
-
-run:
-	make down && docker-compose up
-
-run-scaled:
-	make down && docker-compose up --scale spark-worker=3
-
-run-d:
-	make down && docker-compose up -d
+.PHONY: install
+install:
+	@echo "Install requirement... It recommended to do the installation inside virtual environment"
+	python -m pip install -r requirements.txt
+	@echo "Checking for Java installation..."
+	@if java -version > /dev/null 2>&1; then \
+		echo "Java is installed."; \
+	else \
+		echo "Java is not installed. Please follow this guide to install Java: https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html"; \
+	fi

@@ -1,4 +1,4 @@
-from ingestion.processor import IngestionProcessor
+from ingestion.processor import IngestionProcessor, AggregationProcessor
 from ingestion.config import IngestionConfig, get_config_from_yaml
 import argparse
 
@@ -26,3 +26,6 @@ def run():
 
     processor = IngestionProcessor(config)
     processor.run()
+
+    aggregator = AggregationProcessor(config)
+    aggregator.run()

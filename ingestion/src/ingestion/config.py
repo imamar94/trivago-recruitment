@@ -19,6 +19,7 @@ class IngestionConfig:
         "max_perc_inappropriate_words": 0.2,
         "max_review_age_year": 3,
         "unique_ids": ["restaurantId", "reviewId"],
+        "review_column": "text",
         "timestamp_column": "publishedAt"
     })
 
