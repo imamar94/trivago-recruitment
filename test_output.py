@@ -1,7 +1,6 @@
 from delta import DeltaTable
-from ingestion.processor import IngestionProcessor
-from ingestion.config import IngestionConfig, get_config_from_yaml
+from ingestion.spark_utils import get_spark_session
 
-p = IngestionProcessor(IngestionConfig())
-df = DeltaTable.forPath(p.spark, 'data/output/final').toDF()
+spark = get_spark_session()
+df = DeltaTable.forPath(spark, 'data/output/final').toDF()
 df.orderBy("restaurantId", "reviewId").show(100, False)

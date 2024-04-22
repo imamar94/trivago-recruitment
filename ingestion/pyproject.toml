@@ -16,7 +16,7 @@ dependencies = [
     'pyspark==3.5.0',
     'pyyaml==6.0.1',
     'delta-spark==3.0.0',
-    'jsonschema-4.21.1'
+    'jsonschema==4.21.1'
 ]
 
 [project.scripts]
@@ -26,3 +26,4 @@ review-ingestion = "ingestion.cli:run"
 dev = [
     "pytest==7.3.0"
 ]
+  

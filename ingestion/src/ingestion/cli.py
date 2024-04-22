@@ -4,12 +4,19 @@ import argparse
 
 
 def run():
-    parser = argparse.ArgumentParser(description="Review Ingestion Pipeline")
-    parser.add_argument("--config-path", default="ingestion_config/default.yaml")
-    parser.add_argument("--input")
-    parser.add_argument("--inappropriate_words")
-    parser.add_argument("--output")
-    parser.add_argument("--aggregations")
+    parser = argparse.ArgumentParser(
+        description="Review Ingestion Pipeline",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--config_path", default="ingestion_config/default.yaml",
+                        help="Path to YAML config file")
+    parser.add_argument("--input",
+                        help="Local filesystem path to the JSONL file containing the reviews")
+    parser.add_argument("--inappropriate_words",
+                        help="Local file system path to the new-line delimited text file containing the words to filter out")
+    parser.add_argument("--output",
+                        help="Local filesystem path to write the successfully processed reviews to")
+    parser.add_argument("--aggregations",
+                        help="Local file system path to write the aggregations as JSONL")
     args = parser.parse_args()
 
     config = get_config_from_yaml(args.config_path)
